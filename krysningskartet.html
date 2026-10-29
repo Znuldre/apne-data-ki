@@ -474,7 +474,7 @@ details summary { cursor: pointer; color: var(--fg-2); }
   </section>
   <p class="liten fot" id="fot">Laget for KI-kroken «Åpne data + KI = nye muligheter?». Bare til intern bruk i Ruter.</p>
 </div>
-<script>window.__MODUS="snapshot";window.__VERTER=[];window.__BYGG={"id":"1_krysningskartet","hash":"29eeb460bf","bygget":"2026-10-29T00:19:50+00:00","variant":"offentlig","tema":"noytral"};window.__SNAPSHOT={};
+<script>window.__MODUS="snapshot";window.__VERTER=[];window.__BYGG={"id":"1_krysningskartet","hash":"cdaf470542","bygget":"2026-10-29T12:40:52+00:00","variant":"offentlig","tema":"noytral"};window.__SNAPSHOT={};
 /* Datahenter – den eneste veien ut til nettet for alle byggene.
    Modus (satt av bake.py): 'live' henter alltid, 'snapshot' bruker bare innbakte svar,
    'auto' henter live og faller tilbake til snapshot hvis kilden feiler eller er treg.
@@ -703,9 +703,13 @@ details summary { cursor: pointer; color: var(--fg-2); }
         merke.className = 'merke merke--snapshot';
         merke.textContent = BYGG.variant === 'artifact' ? `Data fra ${dato(BYGG.bygget, false)}` : 'Venter på data';
       } else if (snap.length || BYGG.variant === 'artifact') {
-        const eldst = snap.map((p) => p.hentet).filter(Boolean).sort()[0];
+        // Er svarene lagret på ulike dager (for eksempel en kilde gjenbrukt fra et eldre opptak), vises det nyeste
+        // tidspunktet og det eldste i parentes, så merket verken skjuler de ferske dataene eller de eldre.
+        const tider = snap.map((p) => p.hentet).filter(Boolean).sort();
+        const eldst = tider[0], nyest = tider[tider.length - 1];
+        const når = !eldst ? '' : dato(eldst, false) === dato(nyest, false) ? ` fra ${dato(eldst)}` : ` fra ${dato(nyest)} (eldste ${dato(eldst, false)})`;
         merke.className = 'merke merke--snapshot';
-        merke.textContent = `Lagrede data${eldst ? ' fra ' + dato(eldst) : ''}${live.length ? ` · ${live.length} live` : ''}`;
+        merke.textContent = `Lagrede data${når}${live.length ? ` · ${live.length} live` : ''}`;
       } else {
         merke.className = 'merke merke--live';
         merke.textContent = `Live · ${dato(live[live.length - 1].tid)}`;
